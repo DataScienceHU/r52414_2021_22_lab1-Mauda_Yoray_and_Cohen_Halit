@@ -49,9 +49,10 @@ top_n(High_income_new_cases[c("date","new_vaccinations")],5)
 f <- function(data_frame, col_name) {
 filtered_covid_data_high <- data_frame %>% filter(location == "High income")
 filtered_covid_data_low <- data_frame %>% filter(location == "Low income")
-plot(filtered_covid_data_high$date, filtered_covid_data_high$col_name)
+plot(filtered_covid_data_high$date, filtered_covid_data_high$col_name , xlab = "Date", ylab = "amount", col = "red")
 points(filtered_covid_data_low$date, filtered_covid_data_low$col_name, col = "blue")
 }
+f(df,new_deaths)
 ```
 [Solution text - description of analysis and results]
 
