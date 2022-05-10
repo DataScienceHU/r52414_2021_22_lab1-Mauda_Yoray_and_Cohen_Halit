@@ -44,10 +44,12 @@ top_n(High_income_new_cases[c("date","new_vaccinations")],5)
 [Solution text - description of analysis and results]
 
 
-2. [Solution text - explanations] 
-```{r} 
-# Solution code in R 
-
+2. In this Question, we will compute a function that plots high and low income in one graph, as a function of date. 
+```{r}
+f <- function(data_frame, col_name) {
+filtered_covid_data_high <- data_frame %>% filter(location == "High income")
+filtered_covid_data_low <- data_frame %>% filter(location == "Low income")
+}
 ```
 [Solution text - description of analysis and results]
 
