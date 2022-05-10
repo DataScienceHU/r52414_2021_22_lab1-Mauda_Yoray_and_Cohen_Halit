@@ -46,6 +46,8 @@ top_n(High_income_new_cases[c("date","new_vaccinations")],5)
 
 2. In this Question, we will compute a function that plots high and low income in one graph, as a function of date. 
 ```{r}
+#a
+#להתייחס עריכם חסרין ולכתוב הסבר
 function_question2 <- function(data_frame, col_name)
 {
   filtered_covid_data_high <- data_frame %>% filter(location == "High income")
@@ -53,13 +55,15 @@ function_question2 <- function(data_frame, col_name)
   ggplot(filtered_covid_data_high, aes(date, {{col_name}})) + geom_point() +
     geom_point(data = filtered_covid_data_low, colour = "red")
 }
-```
+#b
 
+
+```
 [Solution text - description of analysis and results]
 
 3. [Solution text - explanations] 
 ```{r} 
-# Solution code in R 
+current <-df[c("location","continent","total_cases_per_million","total_vaccinations_per_hundred","people_fully_vaccinated_per_hundred","total_boosters_per_hundred","excess_mortality_cumulative_per_million","date")] %>%group_by(location)%>%slice(which.max(date))
 
 ```
 [Solution text - description of analysis and results]
