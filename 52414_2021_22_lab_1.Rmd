@@ -70,8 +70,12 @@ plot_4
 
 3. [Solution text - explanations] 
 ```{r} 
+"a"
 current <-df[c("location","continent","total_cases_per_million","total_vaccinations_per_hundred","people_fully_vaccinated_per_hundred","total_boosters_per_hundred","excess_mortality_cumulative_per_million","date")] %>%group_by(location)%>%slice(which.max(date))
 
+"b"
+hist(current$total_cases_per_million,breaks = 30 )
+ggplot(data.frame(current), aes(x=total_cases_per_million))+geom_histogram()
 ```
 [Solution text - description of analysis and results]
 
