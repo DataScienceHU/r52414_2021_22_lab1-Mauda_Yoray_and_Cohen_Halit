@@ -71,17 +71,40 @@ plot_4
 3. [Solution text - explanations] 
 ```{r} 
 "a"
-current <-df[c("location","continent","total_cases_per_million","total_vaccinations_per_hundred","people_fully_vaccinated_per_hundred","total_boosters_per_hundred","excess_mortality_cumulative_per_million","date")] %>%group_by(location)%>%slice(which.max(date))
+
+df_c<-df%>%fill(c("continent","total_cases_per_million","total_vaccinations_per_hundred","people_fully_vaccinated_per_hundred","total_boosters_per_hundred","excess_mortality_cumulative_per_million","total_deaths_per_million","date"), .direction = 'down')
+current <-df_c[c("location","continent","total_cases_per_million","total_vaccinations_per_hundred","people_fully_vaccinated_per_hundred","total_boosters_per_hundred","excess_mortality_cumulative_per_million","total_deaths_per_million","date")] %>%group_by(location)%>%slice(which.max(date))
 
 "b"
-hist(current$total_cases_per_million,breaks = 30 )
-ggplot(data.frame(current), aes(x=total_cases_per_million))+geom_histogram()
+"Does this histogram look close to the normal distribution? Compute the skewness and kurtosis for this distribution, and explain what they mean about the empirical distribution of the data."
+"צריך להוסיף פה הסבר על הגרף"
+ggplot(current, aes(x=total_deaths_per_million))+geom_histogram(bins = 30)+labs(x="total deaths per million", y="Frequency")
+tdpm <- current$total_deaths_per_million
+tdpm_1<-na.omit(tdpm)
+skewness<-skewness(tdpm_1)
+kurtosis<-kurtosis(tdpm_1)
+skewness
+kurtosis
+
+"c"
+"What is the slope and what does it represent?"
+ggplot(current,aes( x=total_cases_per_million, y=total_deaths_per_million))+geom_point()+
+   geom_smooth(method=lm,se=FALSE)
+lm(current$total_deaths_per_million~current$total_cases_per_million)
+
 ```
 [Solution text - description of analysis and results]
 
 4. [Solution text - explanations] 
 ```{r} 
-# Solution code in R 
+"לאחר התסכלות שטחית על המידע ניתן לראות קטגוריית היבשות אינה מוזנת באוםן נכון וחלק מפרטיה נמתאים בשדה מירום ולכן נבצע קודם סידור של הנתונים"
+"Find two outlier countries (can be of any continent) and write their name and value."
+"a"
+ggplot(current,aes(x=continent, y=total_vaccinations_per_hundred, fill=continent)) +geom_boxplot() 
+
+
+"b"
+
 
 ```
 [Solution text - description of analysis and results]
