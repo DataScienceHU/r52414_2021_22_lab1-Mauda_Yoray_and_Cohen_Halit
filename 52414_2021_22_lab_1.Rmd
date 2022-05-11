@@ -100,11 +100,14 @@ lm(current$total_deaths_per_million~current$total_cases_per_million)
 "לאחר התסכלות שטחית על המידע ניתן לראות קטגוריית היבשות אינה מוזנת באוםן נכון וחלק מפרטיה נמתאים בשדה מירום ולכן נבצע קודם סידור של הנתונים"
 "Find two outlier countries (can be of any continent) and write their name and value."
 "a"
-ggplot(current,aes(x=continent, y=total_vaccinations_per_hundred, fill=continent)) +geom_boxplot() 
+ggplot(current %>% filter(!is.na(continent)), aes(x = continent, y = total_vaccinations_per_hundred,fill=continent)) + geom_boxplot()
 
 
 "b"
-
+"and describe the results"
+booster_ratio <-df$total_boosters/df$people_fully_vaccinated
+df$Added_Column <-booster_ratio
+ggplot(df,aes(x=date,y=booster_ratio,color=continent))+geom_point()+labs(title = "booster ratio and continent",x="Date", y="booster_ratio")
 
 ```
 [Solution text - description of analysis and results]
