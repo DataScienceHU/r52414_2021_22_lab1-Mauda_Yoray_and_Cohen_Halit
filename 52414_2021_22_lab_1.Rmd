@@ -112,7 +112,20 @@ ggplot(current,aes(x=continent, y=total_vaccinations_per_hundred, fill=continent
 5. [Solution text - explanations] 
 ```{r} 
 # Solution code in R 
+# create helper columns
+reduced_df = subset(df, continent != '')
+reduced_df$year <- strftime(reduced_df$date, "%Y")
+reduced_df$month <- strftime(reduced_df$date, "%m")
 
+# aggregate data from each month (all the days)
+agg_reduced_df <- aggregate(new_cases_per_million ~ month + year + location, reduced_df, FUN = sum)
+agg_reduced_df$date <- with(agg_reduced_df, paste(year, month,sep="-"))
+agg_reduced_df
+
+agg_reduced_df %>% ggplot(aes(x= month, y= new_cases_per_million)) +
+  geom_boxplot(outlier.colour = "green") + facet_wrap(~year, ncol=3) +
+  labs(title = "Number of Total Cases Per Million for Each Month",
+       subtitle = "Data Plotted by Year", y= "Total Cases", x= "Month")
 ```
 [Solution text - description of analysis and results]
 
