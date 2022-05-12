@@ -14,6 +14,8 @@ library(rworldmap) # world map
 library(ggthemes)
 library(reshape2) # melt: change data-frame format long/wide
 library(e1071) # skewness and kurtosis
+library(RColorBrewer)
+
 ```  
 
 **Solution:**  
@@ -80,6 +82,7 @@ current <-df_c[c("location","continent","total_cases_per_million","total_vaccina
 "צריך להוסיף פה הסבר על הגרף"
 ggplot(current, aes(x=total_deaths_per_million))+geom_histogram(bins = 30)+labs(x="total deaths per million", y="Frequency")
 tdpm <- current$total_deaths_per_million
+tdpm[tdpm == ""]<-NA
 tdpm_1<-na.omit(tdpm)
 skewness<-skewness(tdpm_1)
 kurtosis<-kurtosis(tdpm_1)
@@ -100,13 +103,18 @@ lm(current$total_deaths_per_million~current$total_cases_per_million)
 "לאחר התסכלות שטחית על המידע ניתן לראות קטגוריית היבשות אינה מוזנת באוםן נכון וחלק מפרטיה נמתאים בשדה מירום ולכן נבצע קודם סידור של הנתונים"
 "Find two outlier countries (can be of any continent) and write their name and value."
 "a"
-ggplot(current %>% filter(!is.na(continent)), aes(x = continent, y = total_vaccinations_per_hundred,fill=continent)) + geom_boxplot()
+current_q4 <- current[c("continent","total_vaccinations_per_hundred")]
+current_q4[current_q4 ==""]<- NA
+current_q4 <-na.omit(current_q4)
+ggplot(current_q4, aes(x = continent, y = total_vaccinations_per_hundred,fill=continent)) + geom_boxplot()
 
 
 "b"
 "and describe the results"
+df_q4 <-df
 booster_ratio <-df$total_boosters/df$people_fully_vaccinated
 df$Added_Column <-booster_ratio
+df_q4 <- df[c("Date","booster_ratio","continent")]
 ggplot(df,aes(x=date,y=booster_ratio,color=continent))+geom_point()+labs(title = "booster ratio and continent",x="Date", y="booster_ratio")
 
 ```
@@ -123,7 +131,7 @@ reduced_df$month <- strftime(reduced_df$date, "%m")
 # aggregate data from each month (all the days)
 agg_reduced_df <- aggregate(new_cases_per_million ~ month + year + location, reduced_df, FUN = sum)
 agg_reduced_df$date <- with(agg_reduced_df, paste(year, month,sep="-"))
-agg_reduced_df
+
 
 agg_reduced_df %>% ggplot(aes(x= month, y= new_cases_per_million)) +
   geom_boxplot(outlier.colour = "green") + facet_wrap(~year, ncol=3) +
@@ -134,6 +142,7 @@ agg_reduced_df %>% ggplot(aes(x= month, y= new_cases_per_million)) +
 
 6. [Solution text - explanations] 
 ```{r} 
+
 # Solution code in R 
 
 ```
@@ -141,20 +150,42 @@ agg_reduced_df %>% ggplot(aes(x= month, y= new_cases_per_million)) +
 
 7. [Solution text - explanations] 
 ```{r} 
-# Solution code in R 
+" Describe the resulting maps in a couple of sentences."
+"נסדר את המידע  כדי שלכל מדינה יהיה ערך יחיד"
+mapdata_deaths<-df[c("location","total_deaths_per_million")]%>%group_by(location)%>%slice(which.max(total_deaths_per_million))
+mapdata_vaccinations<-df[c("location","total_vaccinations_per_hundred")]%>%group_by(location)%>%slice(which.max(total_vaccinations_per_hundred))
+mapdata_mortality<-df[c("location","excess_mortality_cumulative_per_million")]%>%group_by(location)%>%slice(which.max(excess_mortality_cumulative_per_million))
 
+
+
+map_world_deaths<-joinCountryData2Map(mapdata_deaths,joinCode = "NAME",nameJoinColumn = "location")
+colourpalette<-brewer.pal(8,'Accent')
+mapCountryData(map_world_deaths,nameColumnToPlot = 'total_deaths_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 400)
+
+map_world_vaccinations<-joinCountryData2Map(mapdata_vaccinations,joinCode = "NAME",nameJoinColumn = "location")
+mapCountryData(map_world_vaccinations,nameColumnToPlot = 'total_vaccinations_per_hundred',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 400)
+
+map_world_mortality<-joinCountryData2Map(mapdata_mortality,joinCode = "NAME",nameJoinColumn = "location")
+mapCountryData(map_world_mortality,nameColumnToPlot = 'excess_mortality_cumulative_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 400)
 ```
 [Solution text - description of analysis and results]
 
 8. [Solution text - explanations] 
 ```{r} 
-# Solution code in R 
+"Do we see a decrease in the risk over time? can you suggest explanations for the observed trends?"
 
 ```
 [Solution text - description of analysis and results]
 
 9. [Solution text - explanations] 
 ```{r} 
+q_9df <-df[c("location","continent","date","total_deaths","total_cases")]
+q_9df$death_rate <-q_9df$total_deaths/q_9df$total_cases
+q_9df[q_9df==""]<-NA
+q_9df<- na.omit(q_9df)
+ggplot(q_9df,aes(x=date, y=death_rate,color=continent))+geom_line()+labs(x="total_deathe", y="date")
+
+
 # Solution code in R 
 
 ```
