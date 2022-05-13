@@ -73,12 +73,13 @@ plot_4
 3. [Solution text - explanations] 
 ```{r} 
 "a"
-
+#Filter, compare and update the information to get the latest
 df_c<-df%>%fill(c("continent","total_cases_per_million","total_vaccinations_per_hundred","people_fully_vaccinated_per_hundred","total_boosters_per_hundred","excess_mortality_cumulative_per_million","total_deaths_per_million","date"), .direction = 'down')
 current <-df_c[c("location","continent","total_cases_per_million","total_vaccinations_per_hundred","people_fully_vaccinated_per_hundred","total_boosters_per_hundred","excess_mortality_cumulative_per_million","total_deaths_per_million","date")] %>%group_by(location)%>%slice(which.max(date))
 
 "b"
-"Does this histogram look close to the normal distribution? Compute the skewness and kurtosis for this distribution, and explain what they mean about the empirical distribution of the data."
+#create a plot and Computers of skewness and kurtosis
+"Does this histogram look close to the normal distribution? Compute the skewness and kurtosis for this distribution, and explain what they mean about the empirical distribution of the data.???"
 "צריך להוסיף פה הסבר על הגרף"
 ggplot(current, aes(x=total_deaths_per_million))+geom_histogram(bins = 30)+labs(x="total deaths per million", y="Frequency")
 tdpm <- current$total_deaths_per_million
@@ -90,7 +91,8 @@ skewness
 kurtosis
 
 "c"
-"What is the slope and what does it represent?"
+"What is the slope and what does it represent???"
+#Create a linear regression
 ggplot(current,aes( x=total_cases_per_million, y=total_deaths_per_million))+geom_point()+
    geom_smooth(method=lm,se=FALSE)
 lm(current$total_deaths_per_million~current$total_cases_per_million)
@@ -103,19 +105,20 @@ lm(current$total_deaths_per_million~current$total_cases_per_million)
 "לאחר התסכלות שטחית על המידע ניתן לראות קטגוריית היבשות אינה מוזנת באוםן נכון וחלק מפרטיה נמתאים בשדה מירום ולכן נבצע קודם סידור של הנתונים"
 "Find two outlier countries (can be of any continent) and write their name and value."
 "a"
+#Organize the data
 current_q4 <- current[c("continent","total_vaccinations_per_hundred")]
 current_q4[current_q4 ==""]<- NA
 current_q4 <-na.omit(current_q4)
+#creat a plot
 ggplot(current_q4, aes(x = continent, y = total_vaccinations_per_hundred,fill=continent)) + geom_boxplot()
 
 
 "b"
-"and describe the results"
-df_q4 <-df
-booster_ratio <-df$total_boosters/df$people_fully_vaccinated
-df$Added_Column <-booster_ratio
-df_q4 <- df[c("Date","booster_ratio","continent")]
-ggplot(df,aes(x=date,y=booster_ratio,color=continent))+geom_point()+labs(title = "booster ratio and continent",x="Date", y="booster_ratio")
+"and describe the results???"
+#Add a new field and group the data into groups
+df_q4 <- df%>%group_by(location)%>%mutate(booster_ratio=total_boosters/people_fully_vaccinated)
+df_q4<-subset(df_q4,location %in% c('Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'))
+ggplot(df_q4,aes(x=date,y=booster_ratio,color=location))+geom_line()+labs(title = "booster ratio and continent",x="Date", y="booster_ratio")
 
 ```
 [Solution text - description of analysis and results]
@@ -166,28 +169,27 @@ df_for6$R_cases
 
 7. [Solution text - explanations] 
 ```{r} 
-" Describe the resulting maps in a couple of sentences."
-"נסדר את המידע  כדי שלכל מדינה יהיה ערך יחיד"
+#data preparation#
 mapdata_deaths<-df[c("location","total_deaths_per_million")]%>%group_by(location)%>%slice(which.max(total_deaths_per_million))
 mapdata_vaccinations<-df[c("location","total_vaccinations_per_hundred")]%>%group_by(location)%>%slice(which.max(total_vaccinations_per_hundred))
 mapdata_mortality<-df[c("location","excess_mortality_cumulative_per_million")]%>%group_by(location)%>%slice(which.max(excess_mortality_cumulative_per_million))
-
-
-
+#Creating the maps#
 map_world_deaths<-joinCountryData2Map(mapdata_deaths,joinCode = "NAME",nameJoinColumn = "location")
 colourpalette<-brewer.pal(8,'Accent')
-mapCountryData(map_world_deaths,nameColumnToPlot = 'total_deaths_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 400)
+mapCountryData(map_world_deaths,nameColumnToPlot = 'total_deaths_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 200,missingCountryCol = "white")
 
 map_world_vaccinations<-joinCountryData2Map(mapdata_vaccinations,joinCode = "NAME",nameJoinColumn = "location")
-mapCountryData(map_world_vaccinations,nameColumnToPlot = 'total_vaccinations_per_hundred',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 400)
+mapCountryData(map_world_vaccinations,nameColumnToPlot = 'total_vaccinations_per_hundred',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 200,missingCountryCol = "white")
 
 map_world_mortality<-joinCountryData2Map(mapdata_mortality,joinCode = "NAME",nameJoinColumn = "location")
-mapCountryData(map_world_mortality,nameColumnToPlot = 'excess_mortality_cumulative_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 400)
+mapCountryData(map_world_mortality,nameColumnToPlot = 'excess_mortality_cumulative_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 200,missingCountryCol = "white")
+
 ```
 [Solution text - description of analysis and results]
 
 8. [Solution text - explanations] 
-```{r} 
+```{r}
+
 "Do we see a decrease in the risk over time? can you suggest explanations for the observed trends?"
 
 ```
@@ -195,22 +197,45 @@ mapCountryData(map_world_mortality,nameColumnToPlot = 'excess_mortality_cumulati
 
 9. [Solution text - explanations] 
 ```{r} 
-q_9df <-df[c("location","continent","date","total_deaths","total_cases")]
-q_9df$death_rate <-q_9df$total_deaths/q_9df$total_cases
-q_9df[q_9df==""]<-NA
-q_9df<- na.omit(q_9df)
-ggplot(q_9df,aes(x=date, y=death_rate,color=continent))+geom_line()+labs(x="total_deathe", y="date")
+"a"
+#data preparation#
 
+df_q9 <-df %>%group_by(location)%>% mutate(death_rate = total_deaths/total_cases)
+df_q9<-subset(df_q9, date >= as.Date('2021-01-01'))
+df_q9 <- subset(df_q9, location %in% c('Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America', 'World'))
 
-# Solution code in R 
+# create the plots#
+ggplot(df_q9, aes(x=date, y=death_rate, color=location)) + geom_line()+labs(title = 'death_rate time line',x="date", y="death rate")
+"b"
+ggplot(df_q9, aes(x=date, y=total_vaccinations_per_hundred, color=location)) + geom_line()
+
 
 ```
 [Solution text - description of analysis and results]
 
 10. [Solution text - explanations] 
-```{r} 
-# Solution code in R 
+```{r}
+#a
+#data preparation#
+current$excess_mortality = abs(current$total_deaths_per_million - current$excess_mortality_cumulative_per_million)
+current_10f<-filter(current,excess_mortality>=2000)
 
+# create the plot#
+ggplot(current,aes(x= total_deaths_per_million,y=excess_mortality_cumulative_per_million))+geom_point(size = 0.5)+
+#create the Equations mentioned in the question
+geom_point(data =current_10f, color = "blue",size = 0.5)+geom_abline(intercept=0, slope = 1, color = "green")+geom_abline(intercept=2000, slope = 1, color = "pink")+geom_abline(intercept=-2000, slope = 1, color = "orange")+
+#Arrange the text
+geom_text(data = current_10f,hjust= 0,nudge_x = 0.05,size =2,aes(label = location),color = "red")+  labs(title = " deaths and excess mortality per million")
+
+
+#b
+#Pick three countries and create the data
+chosen_countries <- c("Serbia","Armenia","Bulgaria")
+df_q10 <- filter(df,location%in%chosen_countries)
+df_q10 <-select(df_q10,c(location,date,total_deaths_per_million,excess_mortality_cumulative_per_million))
+#create the plot
+ggplot(df_q10,aes(x=date))+geom_line(aes(y = total_deaths_per_million, col = location)) +
+  geom_point(aes( y = excess_mortality_cumulative_per_million, col = location), shape = 21)
 ```
 [Solution text - description of analysis and results]
 
