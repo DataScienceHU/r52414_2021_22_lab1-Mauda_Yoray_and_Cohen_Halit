@@ -39,7 +39,7 @@ class(df$date)
 In this sub question, we will compute in a table the top five dates in terms of number of new cases for High income cases. Later, we will do the same in "New Deaths" & "New Vaccinations".
 ```{r} 
 High_income_new_cases <- filter(df,location == "High income")%>%
-arrange(desc(new_cases))
+  arrange(desc(new_cases))
 top_n(High_income_new_cases[c("date","new_cases")],5)
 
 High_income_new_deaths <- filter(df,location == "High income")%>%
@@ -118,7 +118,7 @@ kurtosis
 In this section we will create a linear regression module, and will show the results in a plot.
 ```{r} 
 ggplot(current,aes( x=total_cases_per_million, y=total_deaths_per_million))+geom_point()+
-   geom_smooth(method=lm,se=FALSE)
+  geom_smooth(method=lm,se=FALSE)
 lm(current$total_deaths_per_million~current$total_cases_per_million)
 
 ```
@@ -210,7 +210,7 @@ For new vaccinations: we can see a massive rise in vaccinations in middle 2021, 
 In This question we will create a column that represents the R0 reproduction factor.
 ```{r} 
 df_for6 <- df %>% group_by(location) %>% mutate(R_cases = new_cases_smoothed /
-                                         lag(new_cases_smoothed, n = 7))
+                                                  lag(new_cases_smoothed, n = 7))
 df_for6$R_cases[is.infinite(df_for6$R_cases)] <- NA
 ```
 Now, we'll create a plot for UK, Israel & USA, as a function of time. Then, we will list in a table the number of days the disease was spreading. We will (by order): subset the desired places, plot the cases per place, and we will create a list for days the R0 was above 1:
@@ -263,18 +263,20 @@ In this question we choose the correlation between COVID diagnosis and death for
 In here we will write a function that receives the data frame as input and two countries, and computes the value of the cross correlation.
 
 ```{r}
-cross_corr <- function(data_frame,name_of_Country,col_1,col_2) {
-data_frame<-subset(data_frame,location ==name_of_Country)
-y<- data_frame$col_1
-x<-data_frame$col_2
-cross_vector <-rep(1:121)
-for(j in 60:0){
-cross_vector[61-j]<-cor(x[1:(length(x)-j)],y[j+1]:length(y),use = "complete.obs")
-}
-for(j in 1:61){
-cross_vector[60+j]<-cor(y[1:(length(x)-j)],x[j+1]:length(y),use = "complete.obs")
-return(cross_vector)
-}
+fun_cross_corr <- function(data_frame,name_of_country,col_1,col_2) {
+data_frame<-data_frame%>% filter(location == name_of_country)
+  y<-data_frame[[col_1]]
+  n<-nrow(df)
+  x<-data_frame[[col_2]]
+  cross_vector <-rep(1:121)
+  for(j in 60:0){
+    cross_vector[61-j]= cor(x[1:(n-j)],y[(j+1):n],use = "complete.obs")
+  }
+  for(j in 1:61){
+    cross_vector[60+j]= cor(y[1:(n-j)],x[(j+1):n],use = "complete.obs")
+  }
+  return(cross_vector)
+  
 }
 ```
 
@@ -283,12 +285,14 @@ return(cross_vector)
 In this sub question. we will use the function from A, and see it between new cases smoothed, and new deaths smooth for the entire world.
 
 ```{r}
-ggplot(df, aes(x = 60:-60, y = cross_corr(df, "World", "new_cases_smoothed", "new_deaths_smoothed"))) + geom_line()
+x = c(60:-60)
+y= fun_cross_corr(df, "World", "new_cases_smoothed", "new_deaths_smoothed")
+plot(x,y)
 ```
 
 ##### Analysis & Results 
 
-From the graph, we can observe the critical time and see the beginning of the decline between the two variables.
+From the graph, we can observe the critical time in the x axis is 0 and see the beginning of the decline between the two variables.
 
 ### Question 9
 
@@ -326,10 +330,10 @@ current_10f<-filter(current,excess_mortality>=2000)
 
 # Now we will create the plot:
 ggplot(current,aes(x= total_deaths_per_million,y=excess_mortality_cumulative_per_million))+geom_point(size = 0.5)+
-# Create the Equations mentioned in the question:
-geom_point(data =current_10f, color = "blue",size = 0.5)+geom_abline(intercept=0, slope = 1, color = "green")+geom_abline(intercept=2000, slope = 1, color = "pink")+geom_abline(intercept=-2000, slope = 1, color = "orange")+
-#Arrange the text:
-geom_text(data = current_10f,hjust= 0,nudge_x = 0.05,size =2,aes(label = location),color = "red")+  labs(title = " deaths and excess mortality per million")
+  # Create the Equations mentioned in the question:
+  geom_point(data =current_10f, color = "blue",size = 0.5)+geom_abline(intercept=0, slope = 1, color = "green")+geom_abline(intercept=2000, slope = 1, color = "pink")+geom_abline(intercept=-2000, slope = 1, color = "orange")+
+  #Arrange the text:
+  geom_text(data = current_10f,hjust= 0,nudge_x = 0.05,size =2,aes(label = location),color = "red")+  labs(title = " deaths and excess mortality per million")
 ```
 
 
