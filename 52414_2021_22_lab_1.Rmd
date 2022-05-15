@@ -15,7 +15,7 @@ library(ggthemes)
 library(reshape2) # melt: change data-frame format long/wide
 library(e1071) # skewness and kurtosis
 library(RColorBrewer)
-
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```  
 
 **Solution:**  
@@ -80,8 +80,8 @@ plot_3 <- function_question2(df,new_deaths_smoothed)
 plot_3
 plot_4 <- function_question2(df,new_vaccinations_smoothed)
 plot_4
-
 ```
+
 ##### Analysis & Results
 
 In the plots, the red color is the low income places. We can see that we have lower results in all the graphs in all the parameters. We think that because these are lower income countries, they do not have sufficient information to give, and that's why we have so little results for them.
@@ -219,7 +219,9 @@ subset_places <- subset(df_for6, location %in% c("Israel", "United Kingdom", "Un
 subset_places_plot <- ggplot(subset_places, aes(x= date, y= R_cases, color= location)) + labs(x= "Date", y= "R Cases") + geom_line()
 subset_places_plot
 ```
+
 Now we will compute the list for when these countries had R cases above 1:
+
 ```{r}
 places <- c("UK", "US", "IL")
 R_cases_1 <- c(sum(subset(subset_places, location == "United States")$R_cases > 1, na.rm = TRUE), sum(subset(subset_places, location == "United Kingdom")$R_cases > 1, na.rm = TRUE), sum(subset(subset_places, location == "Israel")$R_cases > 1, na.rm = TRUE))
@@ -246,35 +248,47 @@ mapCountryData(map_world_vaccinations,nameColumnToPlot = 'total_vaccinations_per
 map_world_mortality<-joinCountryData2Map(mapdata_mortality,joinCode = "NAME",nameJoinColumn = "location")
 mapCountryData(map_world_mortality,nameColumnToPlot = 'excess_mortality_cumulative_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 200,missingCountryCol = "white")
 
-
 ```
 
 ##### Analysis & Results 
 
-8. [Solution text - explanations] 
+We can see that the countries that are more red have more death, more vaccinations and more cumulative excess mortality. we can notice that high income countries have more vaccinations, and less death, probably due to more knowledge and information.
+
+### Question 8
+
+In this question we choose the correlation between COVID diagnosis and death for people not surviving the disease.
+
+###### A
+
+In here we will write a function that receives the data frame as input and two countries, and computes the value of the cross correlation.
+
 ```{r}
 cross_corr <- function(data_frame,name_of_Country,col_1,col_2) {
 data_frame<-subset(data_frame,location ==name_of_Country)
 y<- data_frame$col_1
 x<-data_frame$col_2
 cross_vector <-rep(1:121)
-
-n<-length(x)
-n_2<-length(y)
 for(j in 60:0){
-cross_vector[61-j]<-cor(x[1:(n-j)],y[j+1]:n_2,use = 'complete.obs')
+cross_vector[61-j]<-cor(x[1:(length(x)-j)],y[j+1]:length(y),use = "complete.obs")
 }
 for(j in 1:61){
-cross_vector[60+j]<-cor(y[1:(n-j)],x[j+1]:n_2,use = 'complete.obs')
-}
+cross_vector[60+j]<-cor(y[1:(length(x)-j)],x[j+1]:length(y),use = "complete.obs")
 return(cross_vector)
 }
-
-"b"
-y_c=cross_corr(df,"World", "new_cases_smoothed", "new_deaths_smoothed")
-plot(x = 60:-60, y_C)
+}
 ```
-[Solution text - description of analysis and results]
+
+###### B
+
+In this sub question. we will use the function from A, and see it between new cases smoothed, and new deaths smooth for the entire world.
+
+```{r}
+ggplot(df, aes(x = 60:-60, y = cross_corr(df, "World", "new_cases_smoothed", "new_deaths_smoothed"))) + geom_line()
+```
+
+##### Analysis & Results 
+
+From the graph, we can observe the critical time and see the beginning of the decline between the two variables.
 
 ### Question 9
 
@@ -297,7 +311,9 @@ ggplot(df_q9, aes(x=date, y=death_rate, color=location)) + geom_line()+labs(titl
 ggplot(df_q9, aes(x=date, y=total_vaccinations_per_hundred, color=location)) + geom_line()
 ```
 
-[Solution text - description of analysis and results]
+##### Analysis & Results 
+
+We can see from the plots that the total vaccinations value in Africa is the lowest, and and South America is the highest towards the end of our data. It clearly shows that low income states have more death and less vaccinations.
 
 ### Question 10
 In this final question, we will try to guess the excess mortality that is been under reported in some countries. We will use the current data data frame from previous questions to make a scatter plot for total deaths per million, and the excess mortality rate per million.
@@ -330,6 +346,8 @@ ggplot(df_q10,aes(x=date))+geom_line(aes(y = total_deaths_per_million, col = loc
 ```
 
 ##### Analysis & Results 
+
+We chose three countries: Armenia, Bulgaria and Serbia. All three have higher death rate than 2 million. We could find these result based on sub-question A, where we have created a linear regression module, and there assisting lines in order to see better the countries above 2 million.
 
 <br/><br/>  
 
