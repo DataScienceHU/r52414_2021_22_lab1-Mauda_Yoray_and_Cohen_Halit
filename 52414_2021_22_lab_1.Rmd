@@ -258,18 +258,23 @@ data_frame<-subset(data_frame,location ==name_of_Country)
 y<- data_frame$col_1
 x<-data_frame$col_2
 cross_vector <-rep(1:121)
+
+n<-length(x)
+n_2<-length(y)
 for(j in 60:0){
-cross_vector[61-j]<-cor(x[1:(length(x)-j)],y[j+1]:length(y),use = "complete.obs")
+cross_vector[61-j]<-cor(x[1:(n-j)],y[j+1]:n_2,use = 'complete.obs')
 }
 for(j in 1:61){
-cross_vector[60+j]<-cor(y[1:(length(x)-j)],x[j+1]:length(y),use = "complete.obs")
-return(cross_vector)
+cross_vector[60+j]<-cor(y[1:(n-j)],x[j+1]:n_2,use = 'complete.obs')
 }
+return(cross_vector)
 }
 
 "b"
-plot(x = 60:-60, y = cross_corr(df, "World", "new_cases_smoothed", "new_deaths_smoothed"))
+y_c=cross_corr(df,"World", "new_cases_smoothed", "new_deaths_smoothed")
+plot(x = 60:-60, y_C)
 ```
+[Solution text - description of analysis and results]
 
 ### Question 9
 
