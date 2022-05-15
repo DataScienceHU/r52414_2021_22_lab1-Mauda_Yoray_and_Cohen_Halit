@@ -246,17 +246,30 @@ mapCountryData(map_world_vaccinations,nameColumnToPlot = 'total_vaccinations_per
 map_world_mortality<-joinCountryData2Map(mapdata_mortality,joinCode = "NAME",nameJoinColumn = "location")
 mapCountryData(map_world_mortality,nameColumnToPlot = 'excess_mortality_cumulative_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 200,missingCountryCol = "white")
 
+
 ```
 
 ##### Analysis & Results 
 
 8. [Solution text - explanations] 
 ```{r}
+cross_corr <- function(data_frame,name_of_Country,col_1,col_2) {
+data_frame<-subset(data_frame,location ==name_of_Country)
+cross_vector <-rep(1:121)
+y<- data_frame$col_1
+x<-data_frame$col_2
+for(j in 60:0){
+cross_vector[61-j]<-cor(x[1:(length(x)-j)],y[j+1]:length(y),use = "complete.obs")
+}
+for(j in 1:61){
+cross_vector[60+j]<-cor(y[1:(length(x)-j)],x[j+1]:length(y),use = "complete.obs")
+return(cross_vector)
+}
+}
 
-"Do we see a decrease in the risk over time? can you suggest explanations for the observed trends?"
-
+"b"
+plot(x = 60:-60, y = cross_corr(df, "World", "new_cases_smoothed", "new_deaths_smoothed"))
 ```
-[Solution text - description of analysis and results]
 
 ### Question 9
 
