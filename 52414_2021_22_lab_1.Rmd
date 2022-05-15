@@ -255,9 +255,9 @@ mapCountryData(map_world_mortality,nameColumnToPlot = 'excess_mortality_cumulati
 ```{r}
 cross_corr <- function(data_frame,name_of_Country,col_1,col_2) {
 data_frame<-subset(data_frame,location ==name_of_Country)
-cross_vector <-rep(1:121)
 y<- data_frame$col_1
 x<-data_frame$col_2
+cross_vector <-rep(1:121)
 for(j in 60:0){
 cross_vector[61-j]<-cor(x[1:(length(x)-j)],y[j+1]:length(y),use = "complete.obs")
 }
