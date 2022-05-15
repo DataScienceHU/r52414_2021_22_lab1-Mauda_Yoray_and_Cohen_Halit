@@ -1,7 +1,7 @@
 ---
 title: "52414 - lab 1 Solutions"
-author: "Halit Cohen and Yoray Mauda"
-date: "25/4/2022"
+author: "Halit Cohen 318356854 and Yoray Mauda 315874404"
+date: "15/5/2022"
 output: html_document
 ---
 
@@ -20,16 +20,24 @@ library(RColorBrewer)
 
 **Solution:**  
 
-1. In this section, we will load the data frame, and will compute basic processing. Plus, we will list a table the top five dates as requested. 
+### Question 1
+
+In this section, we will load the data frame, and will compute basic processing. Plus, we will list a table the top five dates as requested.
+
+###### A
+First, we will load the data, straight from GitHub:
 ```{r} 
-
-# a. Loading the data:
 df <- read.csv("https://raw.githubusercontent.com/DataScienceHU/r52414_2021_22_lab1-Mauda_Yoray_and_Cohen_Halit/main/owid-covid-data.csv")
-
-# Modifying date because its in "character" class.
+```
+Secondly, we will modify the data & change the date column to an actual date class, in order to use it. Lets print & check:
+```{r} 
 df$date <- as.Date(df$date,origin = "%Y-%m-%d")
 class(df$date)
-# b. Listing five top dates
+```
+
+###### B
+In this sub question, we will compute in a table the top five dates in terms of number of new cases for High income cases. Later, we will do the same in "New Deaths" & "New Vaccinations".
+```{r} 
 High_income_new_cases <- filter(df,location == "High income")%>%
 arrange(desc(new_cases))
 top_n(High_income_new_cases[c("date","new_cases")],5)
@@ -37,19 +45,20 @@ top_n(High_income_new_cases[c("date","new_cases")],5)
 High_income_new_deaths <- filter(df,location == "High income")%>%
   arrange(desc(new_deaths))
 top_n(High_income_new_cases[c("date","new_deaths")],5)
-
 High_income_new_vaccinations <- filter(df,location == "High income")%>%
   arrange(desc(new_vaccinations))
 top_n(High_income_new_cases[c("date","new_vaccinations")],5)
-
 ```
-[Solution text - description of analysis and results]
 
+##### Analysis & Results
+We can see that there is a peak in the Middle of January in both new deaths & vaccinations, and after that we the numbers of new cases drop.
 
-2. In this Question, we will compute a function that plots high and low income in one graph, as a function of date. 
+### Question 2
+
+In this Question, we will compute a function that plots high and low income in one graph, as a function of date. We were requested to remove NA data, and since we use the library "ggplot2", it does it by itself.
+
+###### A
 ```{r}
-# a. Here we create the function
-#להתייחס עריכם חסרין ולכתוב הסבר
 function_question2 <- function(data_frame, col_name)
 {
   filtered_covid_data_high <- data_frame %>% filter(location == "High income")
@@ -57,7 +66,12 @@ function_question2 <- function(data_frame, col_name)
   ggplot(filtered_covid_data_high, aes(date, {{col_name}})) + geom_point() +
     geom_point(data = filtered_covid_data_low, colour = "red")
 }
-# b. In this sub-question, we create four more plots based on demand
+```
+###### B
+
+In this sub-question, we create four more plots based on demand
+
+```{r}
 plot_1 <- function_question2(df,new_cases_per_million)
 plot_1
 plot_2 <- function_question2(df,new_cases_smoothed_per_million)
@@ -68,19 +82,27 @@ plot_4 <- function_question2(df,new_vaccinations_smoothed)
 plot_4
 
 ```
-[Solution text - description of analysis and results]
+##### Analysis & Results
 
-3. [Solution text - explanations] 
+In the plots, the red color is the low income places. We can see that we have lower results in all the graphs in all the parameters. We think that because these are lower income countries, they do not have sufficient information to give, and that's why we have so little results for them.
+
+### Question 3
+
+In this Question, we will store and compute a new data frame, with different current values for different parameters, whether it is total cases, deaths, vaccinations, or boosters.
+
+##### A 
+
+First, we will filter the desired information.
 ```{r} 
-"a"
-#Filter, compare and update the information to get the latest
 df_c<-df%>%fill(c("continent","total_cases_per_million","total_vaccinations_per_hundred","people_fully_vaccinated_per_hundred","total_boosters_per_hundred","excess_mortality_cumulative_per_million","total_deaths_per_million","date"), .direction = 'down')
 current <-df_c[c("location","continent","total_cases_per_million","total_vaccinations_per_hundred","people_fully_vaccinated_per_hundred","total_boosters_per_hundred","excess_mortality_cumulative_per_million","total_deaths_per_million","date")] %>%group_by(location)%>%slice(which.max(date))
+```
 
-"b"
-#create a plot and Computers of skewness and kurtosis
-"Does this histogram look close to the normal distribution? Compute the skewness and kurtosis for this distribution, and explain what they mean about the empirical distribution of the data.???"
-"צריך להוסיף פה הסבר על הגרף"
+###### B
+
+Now, we will create a plot and compute the skewness and kurtosis.
+
+```{r} 
 ggplot(current, aes(x=total_deaths_per_million))+geom_histogram(bins = 30)+labs(x="total deaths per million", y="Frequency")
 tdpm <- current$total_deaths_per_million
 tdpm[tdpm == ""]<-NA
@@ -89,44 +111,58 @@ skewness<-skewness(tdpm_1)
 kurtosis<-kurtosis(tdpm_1)
 skewness
 kurtosis
+```
 
-"c"
-"What is the slope and what does it represent???"
-#Create a linear regression
+###### C
+
+In this section we will create a linear regression module, and will show the results in a plot.
+```{r} 
 ggplot(current,aes( x=total_cases_per_million, y=total_deaths_per_million))+geom_point()+
    geom_smooth(method=lm,se=FALSE)
 lm(current$total_deaths_per_million~current$total_cases_per_million)
 
 ```
-[Solution text - description of analysis and results]
+As we can see, there a certain correlation with the linear regression line.
 
-4. [Solution text - explanations] 
+### Question 4
+
+In this section we will make a box plot of six different continents: Africa, Asia, Europe, North America, Oceania and South America. The plot will present the total number of vaccinations in all six different continents. 
+
+###### A
+
+When looking at a first glance, we can see the continents info isn't fully typed correctly, thus some of the details are misplaced. We will organize it first.
 ```{r} 
-"לאחר התסכלות שטחית על המידע ניתן לראות קטגוריית היבשות אינה מוזנת באוםן נכון וחלק מפרטיה נמתאים בשדה מירום ולכן נבצע קודם סידור של הנתונים"
-"Find two outlier countries (can be of any continent) and write their name and value."
-"a"
-#Organize the data
 current_q4 <- current[c("continent","total_vaccinations_per_hundred")]
 current_q4[current_q4 ==""]<- NA
 current_q4 <-na.omit(current_q4)
-#creat a plot
+```
+after reorganizing, we will create the plot:
+
+```{r} 
 ggplot(current_q4, aes(x = continent, y = total_vaccinations_per_hundred,fill=continent)) + geom_boxplot()
+```
 
+###### B
 
-"b"
-"and describe the results???"
+Here we will define a new column called "booster ration", that will show the fraction of individuals that got to shots, by dates.
+
+```{r} 
 #Add a new field and group the data into groups
 df_q4 <- df%>%group_by(location)%>%mutate(booster_ratio=total_boosters/people_fully_vaccinated)
 df_q4<-subset(df_q4,location %in% c('Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'))
 ggplot(df_q4,aes(x=date,y=booster_ratio,color=location))+geom_line()+labs(title = "booster ratio and continent",x="Date", y="booster_ratio")
 
 ```
-[Solution text - description of analysis and results]
 
-5. [Solution text - explanations] 
+##### Analysis & Results 
+
+As we can see, the booster ration keep on rising as the days go.
+
+### Question 5
+###### A
+
+In this section we will make a box plot by the with new cases per million for each month, plotted by year, and the plot will represent the empirical distribution to the values. 
 ```{r} 
-# Solution code in R 
-## A
 reduced_df = subset(df, continent != '')
 reduced_df$year <- strftime(reduced_df$date, "%Y")
 reduced_df$month <- strftime(reduced_df$date, "%m")
@@ -137,8 +173,12 @@ new_cases_per_million_boxplot <- agg_reduced_df_a %>% ggplot(aes(x= month, y= ne
   labs(title = "Number of Total Cases Per Million for Each Month",
        subtitle = "Data Plotted by Year", y= "Total Cases", x= "Month")
 new_cases_per_million_boxplot
-## B
-# For New Deaths:
+```
+
+###### B
+
+Now for new deaths:
+```{r} 
 agg_reduced_df_death <- aggregate(new_deaths ~ month + year + location, reduced_df, FUN = sum)
 agg_reduced_df_death$date <- with(agg_reduced_df_death, paste(year, month,sep="-"))
 new_deaths_boxplot <- agg_reduced_df_death %>% ggplot(aes(x= month, y= new_deaths)) +
@@ -146,7 +186,10 @@ new_deaths_boxplot <- agg_reduced_df_death %>% ggplot(aes(x= month, y= new_death
   labs(title = "Number of New Deaths", subtitle = "Data Plotted by Year",
        y= "New Deaths", x= "Month")
 new_deaths_boxplot
-# For New Vaccinations:
+```
+
+And for new vaccination:
+```{r} 
 agg_reduced_df_vaccinations <- aggregate(new_vaccinations ~ month + year + location, reduced_df, FUN = sum)
 agg_reduced_df_vaccinations$date <- with(agg_reduced_df_vaccinations, paste(year, month,sep="-"))
 new_vaccinations_boxplot <- agg_reduced_df_vaccinations %>% ggplot(aes(x= month, y= new_vaccinations)) +
@@ -155,25 +198,44 @@ new_vaccinations_boxplot <- agg_reduced_df_vaccinations %>% ggplot(aes(x= month,
        y= "New Vaccinations", x= "Month")
 new_vaccinations_boxplot
 ```
-[Solution text - description of analysis and results]
 
-6. [Solution text - explanations] 
+##### Analysis & Results 
+
+For total cases: we can see at the beginning that the lock down was more strict and thus the number of total cases was a bit lower during 2020 and 2021. In 2022, the numbers are higher.
+For new deaths: we can see that the new number of deaths is higher in 2021, and we can clearly see the numbers go down as new vaccination go up.
+For new vaccinations: we can see a massive rise in vaccinations in middle 2021, and then a slow decline further.
+
+### Question 6
+
+In This question we will create a column that represents the R0 reproduction factor.
 ```{r} 
-# Solution code in R 
 df_for6 <- df %>% group_by(location) %>% mutate(R_cases = new_cases_smoothed /
                                          lag(new_cases_smoothed, n = 7))
 df_for6$R_cases[is.infinite(df_for6$R_cases)] <- NA
-df_for6$R_cases
 ```
-[Solution text - description of analysis and results]
+Now, we'll create a plot for UK, Israel & USA, as a function of time. Then, we will list in a table the number of days the disease was spreading. We will (by order): subset the desired places, plot the cases per place, and we will create a list for days the R0 was above 1:
+```{r}
+subset_places <- subset(df_for6, location %in% c("Israel", "United Kingdom", "United States"))
+subset_places_plot <- ggplot(subset_places, aes(x= date, y= R_cases, color= location)) + labs(x= "Date", y= "R Cases") + geom_line()
+subset_places_plot
+```
+Now we will compute the list for when these countries had R cases above 1:
+```{r}
+places <- c("UK", "US", "IL")
+R_cases_1 <- c(sum(subset(subset_places, location == "United States")$R_cases > 1, na.rm = TRUE), sum(subset(subset_places, location == "United Kingdom")$R_cases > 1, na.rm = TRUE), sum(subset(subset_places, location == "Israel")$R_cases > 1, na.rm = TRUE))
+R_list <- data.frame(places, R_cases_1)
+R_list
+```
+We can see the the US leads with 445 days, UK follows and then finally Israel.
 
-7. [Solution text - explanations] 
+### Question 7
+
+In this section we will display several data on a world map, using the library rworldmap. 
 ```{r} 
-#data preparation#
 mapdata_deaths<-df[c("location","total_deaths_per_million")]%>%group_by(location)%>%slice(which.max(total_deaths_per_million))
 mapdata_vaccinations<-df[c("location","total_vaccinations_per_hundred")]%>%group_by(location)%>%slice(which.max(total_vaccinations_per_hundred))
 mapdata_mortality<-df[c("location","excess_mortality_cumulative_per_million")]%>%group_by(location)%>%slice(which.max(excess_mortality_cumulative_per_million))
-#Creating the maps#
+#Creating the maps
 map_world_deaths<-joinCountryData2Map(mapdata_deaths,joinCode = "NAME",nameJoinColumn = "location")
 colourpalette<-brewer.pal(8,'Accent')
 mapCountryData(map_world_deaths,nameColumnToPlot = 'total_deaths_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 200,missingCountryCol = "white")
@@ -185,7 +247,8 @@ map_world_mortality<-joinCountryData2Map(mapdata_mortality,joinCode = "NAME",nam
 mapCountryData(map_world_mortality,nameColumnToPlot = 'excess_mortality_cumulative_per_million',catMethod = 'fixedwidth',colourPalette=colourpalette,numCats = 200,missingCountryCol = "white")
 
 ```
-[Solution text - description of analysis and results]
+
+##### Analysis & Results 
 
 8. [Solution text - explanations] 
 ```{r}
@@ -195,40 +258,50 @@ mapCountryData(map_world_mortality,nameColumnToPlot = 'excess_mortality_cumulati
 ```
 [Solution text - description of analysis and results]
 
-9. [Solution text - explanations] 
-```{r} 
-"a"
-#data preparation#
+### Question 9
 
+In this question we will compute the risk of dying from COVID-19 infection, and will plot the data based on all six continents. In sub-question B, we will make a similar plot for all the world.
+
+###### A
+
+```{r} 
 df_q9 <-df %>%group_by(location)%>% mutate(death_rate = total_deaths/total_cases)
 df_q9<-subset(df_q9, date >= as.Date('2021-01-01'))
 df_q9 <- subset(df_q9, location %in% c('Africa', 'Asia', 'Europe', 'North America', 'Oceania', 'South America', 'World'))
 
 # create the plots#
 ggplot(df_q9, aes(x=date, y=death_rate, color=location)) + geom_line()+labs(title = 'death_rate time line',x="date", y="death rate")
-"b"
-ggplot(df_q9, aes(x=date, y=total_vaccinations_per_hundred, color=location)) + geom_line()
-
-
 ```
+
+###### B
+
+```{r} 
+ggplot(df_q9, aes(x=date, y=total_vaccinations_per_hundred, color=location)) + geom_line()
+```
+
 [Solution text - description of analysis and results]
 
-10. [Solution text - explanations] 
+### Question 10
+In this final question, we will try to guess the excess mortality that is been under reported in some countries. We will use the current data data frame from previous questions to make a scatter plot for total deaths per million, and the excess mortality rate per million.
+
+###### A
+
 ```{r}
-#a
-#data preparation#
 current$excess_mortality = abs(current$total_deaths_per_million - current$excess_mortality_cumulative_per_million)
 current_10f<-filter(current,excess_mortality>=2000)
 
-# create the plot#
+# Now we will create the plot:
 ggplot(current,aes(x= total_deaths_per_million,y=excess_mortality_cumulative_per_million))+geom_point(size = 0.5)+
-#create the Equations mentioned in the question
+# Create the Equations mentioned in the question:
 geom_point(data =current_10f, color = "blue",size = 0.5)+geom_abline(intercept=0, slope = 1, color = "green")+geom_abline(intercept=2000, slope = 1, color = "pink")+geom_abline(intercept=-2000, slope = 1, color = "orange")+
-#Arrange the text
+#Arrange the text:
 geom_text(data = current_10f,hjust= 0,nudge_x = 0.05,size =2,aes(label = location),color = "red")+  labs(title = " deaths and excess mortality per million")
+```
 
 
-#b
+###### B
+
+```{r}
 #Pick three countries and create the data
 chosen_countries <- c("Serbia","Armenia","Bulgaria")
 df_q10 <- filter(df,location%in%chosen_countries)
@@ -237,14 +310,8 @@ df_q10 <-select(df_q10,c(location,date,total_deaths_per_million,excess_mortality
 ggplot(df_q10,aes(x=date))+geom_line(aes(y = total_deaths_per_million, col = location)) +
   geom_point(aes( y = excess_mortality_cumulative_per_million, col = location), shape = 21)
 ```
-[Solution text - description of analysis and results]
 
-11. [Solution text - explanations] 
-```{r} 
-# Solution code in R 
-
-```
-[Solution text - description of analysis and results]
+##### Analysis & Results 
 
 <br/><br/>  
 
